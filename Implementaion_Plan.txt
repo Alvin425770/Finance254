@@ -1,0 +1,89 @@
+# Implementation Plan: Kenyan B2B P2P Lending Platform
+
+**Goal**: Build a highly secure, regulatory-compliant Peer-to-Peer (P2P) lending marketplace in Kenya. The platform will connect High-Net-Worth Individuals (HNWIs) and institutional lenders with thoroughly vetted Small and Medium Enterprises (SMEs) using Supply Chain Finance and Invoice Factoring to guarantee returns and minimize defaults.
+
+## User Review Required
+
+> [!WARNING]
+> **No Runway / Licensing Blocker**
+> Since you currently do not have the financial runway to undergo the 6-12 month CBK licensing process (which requires capital reserves, legal fees, and compliance audits), you cannot legally hold borrower funds or issue credit directly as a new entity. 
+> 
+> **Decision Required**: Do you agree to the "Partnership Model"? This means we will build the platform as a Tech Provider (SaaS) and partner with an already licensed Microfinance Institution (MFI) or SACCO. They will handle regulatory compliance and hold the funds in escrow, while your platform handles the marketplace matching, tech, and credit scoring.
+
+> [!CAUTION]
+> **Rejecting Consumer Lending**
+> For this platform to survive, we must completely abandon the idea of individual (B2C) loans. We will strictly focus on B2B (SMEs) to protect lenders' capital.
+
+## Open Questions
+
+> [!IMPORTANT]
+> 1. **Tech Stack Preferences**: I am proposing Python (FastAPI) for the backend (great for AI/Credit scoring integration) and Flutter for the Mobile App (cross-platform Android/iOS). Are you comfortable with this stack, or do you have other preferences?
+> 2. **Initial Target Niche**: To build our "Moat", we need a specific niche of SMEs. Do you want to target Agriculture (farmers/co-ops), FMCG Retailers (local shops/kiosks), or Gig Economy (drivers/riders)?
+
+---
+
+## 1. Business & Risk Architecture (The "Moat")
+
+To protect lenders and guarantee returns without a massive balance sheet, we will implement the following:
+
+*   **The Model: Invoice Factoring & LPO Financing** 
+    Instead of lending raw cash for "business expansion," lenders will fund confirmed invoices or Local Purchase Orders (LPOs). 
+    *Example: A local supplier delivers KES 100,000 of goods to a large supermarket (like Naivas). The supermarket will pay in 30 days. Your platform lends the supplier KES 90,000 today. In 30 days, the supermarket pays your platform directly. The lender gets their principal + interest, and the risk of default is incredibly low because the payer is a massive corporation, not the small business.*
+*   **The Protection: The Provision Fund**
+    We will charge a 2% platform fee on all successful loans. Half of this fee goes into a locked "Provision Fund." If a borrower defaults, the Provision Fund is used to make the lender whole.
+*   **The Wedge: Supply Chain Partnerships**
+    We will not market to SMEs individually. We will partner with large distributors (e.g., Twiga Foods, major hardware distributors) and offer financing to *their* buyers based on historical buying data provided by the distributor.
+
+---
+
+## 2. Technical Architecture
+
+The platform will consist of three main interfaces, backed by a robust API.
+
+### A. The Core Systems
+*   **Lender Portal (Web Application)**: A dashboard for investors to deposit funds, view available SME invoices to fund, track yields, and withdraw profits.
+*   **SME App (Android & USSD)**: A lightweight Android app for SMEs to upload invoices, request limits, and accept loans. We will also build a USSD interface (`*123#`) because many Kenyan merchants still rely on feature phones or quick USSD menus.
+*   **Admin / Risk Dashboard (Web)**: Internal tool for your team to vet businesses, manually approve large invoices, and monitor systemic risk.
+
+### B. The Integration Layer (Crucial for Kenya)
+*   **Payments (M-Pesa Daraja API)**:
+    *   *C2B (Customer to Business)*: For borrowers repaying loans and lenders depositing funds (PayBill/Till Number).
+    *   *B2C (Business to Customer)*: For disbursing approved loans instantly to the SME's M-Pesa or Bank account.
+*   **Identity & KYC (SmileID / IPRS)**: Automated ID verification. When an SME registers, they take a selfie and scan their Kenyan National ID. We cross-reference this with the government database to eliminate identity fraud.
+*   **Credit Data (Metropol / TransUnion CRB)**: API integration to check if the SME directors are negatively listed on the Credit Reference Bureau before approving them.
+*   **SMS & USSD (Africa's Talking)**: For sending OTPs, payment reminders, and hosting the USSD application.
+
+---
+
+## Proposed Changes (Phase 1: MVP Setup)
+
+If approved, the first technical steps will be to initialize the project infrastructure.
+
+### Backend (Core API)
+#### [NEW] `backend/`
+*   Initialize a Python FastAPI project.
+*   Setup PostgreSQL database schema for `Users`, `Lenders`, `Borrowers`, `Invoices`, `Loans`, and `Transactions`.
+*   Create placeholder endpoints for authentication (JWT) and KYC integration.
+
+### Frontend (Lender Portal)
+#### [NEW] `frontend-lender/`
+*   Initialize a Next.js (React) web application.
+*   Setup Tailwind CSS for styling.
+*   Create the dashboard layout and investment tracking UI.
+
+### Integration Services
+#### [NEW] `backend/services/mpesa.py`
+*   Implement Daraja API OAuth token generation.
+*   Implement STK Push (Express) for instant deposits.
+
+## Verification Plan
+
+### Technical Verification
+- Unit tests for the loan matching engine (ensuring lenders are correctly matched to invoices).
+- Simulated Daraja API Sandbox tests to ensure M-Pesa disbursements and repayments reconcile correctly in the database.
+- Database transaction integrity tests (preventing race conditions where two lenders try to fund the same invoice simultaneously).
+
+### Business Verification
+- Register as a developer on the Safaricom Daraja Portal.
+- Secure an API key from Africa's Talking for USSD/SMS testing.
+- Draft a pitch deck targeting a Microfinance Institution (MFI) for the regulatory partnership.
