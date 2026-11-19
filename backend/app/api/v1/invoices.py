@@ -59,7 +59,7 @@ def update_invoice_status(invoice_id: int, status_update:
 #4. View detailed status of an invoice (Funding progress, remaining amount, investors)
 @router.get("/{invoice_id}/details")
 def get_invoice_details(invoice_id: int, db: Session = Depends(get_db)):
-    invoice = db.query(Invoice).filter(invoice.id == invoice_id).first()
+    invoice = db.query(Invoice).filter(Invoice.id == invoice_id).first()
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
     
@@ -75,7 +75,7 @@ def get_invoice_details(invoice_id: int, db: Session = Depends(get_db)):
         "status": invoice.status.value,
         "due_date": invoice.due_date,
         "total_funded": total_funded,
-        "remainning_amount": remaining_amount,
+        "remaining_amount": remaining_amount,
         "funding_percentage": round((total_funded / invoice.amount)*100, 2)if invoice.amount > 0 else 0,
         "investment_count": len (investments)
         
